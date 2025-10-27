@@ -1,128 +1,258 @@
-# bits
+# Bits
 
-Bits is a beautifully simple atomic habit-tracker.
+> A beautifully simple atomic habit tracker. Do less, better.
 
-## Philosophy
+## Overview
 
-**Do less, better.** Bits focuses on making habit tracking effortless and beautiful. No complicated features, no overwhelming dashboards, no guilt-inducing statistics. Just you, your habits, and a satisfying way to mark them complete.
+Bits is a minimalist habit tracking application focused on simplicity, performance, and visual appeal. Built on the principle that complexity is the enemy of execution, Bits does one thing exceptionally well: helps you track daily habits with zero friction.
+
+**Philosophy:** Remove everything that doesn't directly serve the core purpose. No analytics dashboards, no social features, no gamification. Just you, your habits, and a satisfying way to mark them complete.
 
 ## Core Features
 
-Three things. That's it.
+### Essential Functionality
+1. **Add Habit** - Create habits with optional frequency targets
+2. **Mark Complete** - One-tap completion recording with timestamp
+3. **Visualize Progress** - Clean, minimal progress indicators
 
-1. **Add a habit** - Name it, optionally set a frequency (e.g., "twice a day")
-2. **Mark it done** - One tap to record completion
-3. **See your progress** - Beautiful, minimal visualization
-
-Everything else is noise.
-
-## Data Model
-
-Keep it simple. Two entities, minimal fields.
-
-### Habit
-```
-{
-  id: string
-  name: string
-  frequency?: {
-    times: number      // e.g., 2
-    period: string     // 'day', 'week', 'month'
-  }
-  createdAt: timestamp
-}
-```
-
-### Completion
-```
-{
-  id: string
-  habitId: string
-  completedAt: timestamp
-}
-```
+That's it. Everything else is noise.
 
 ## Technology Stack
 
-**To be decided:**
-- Frontend framework (React, Vue, Svelte?)
-- UI library/styling (Tailwind, styled-components?)
-- State management
-- Data persistence (Local storage, IndexedDB, backend?)
-- Mobile approach (PWA, React Native, Flutter?)
+### Frontend
+- **Framework:** SvelteKit 2.x
+  - Minimal runtime footprint
+  - Fastest framework performance
+  - Built-in SSR/SSG capabilities
+  - Compile-time reactivity
+- **Language:** TypeScript 5.x
+  - Type safety and IDE support
+  - Self-documenting code
+  - Reduced runtime errors
+- **Styling:** Tailwind CSS 3.x
+  - Utility-first approach
+  - Consistent design system
+  - Automatic CSS purging
+  - Minimal bundle size
 
-## Project Structure
+### Data & State
+- **State Management:** Svelte Stores (built-in)
+  - No external dependencies
+  - Reactive by default
+  - Simple API
+- **Data Persistence:** IndexedDB
+  - Structured data storage
+  - Asynchronous operations
+  - Offline-first capability
+  - Ample storage capacity
+
+### Build & Development
+- **Build Tool:** Vite 5.x
+  - Instant HMR
+  - Optimized production builds
+  - Native ES modules
+- **Package Manager:** pnpm
+  - Fast, efficient dependency management
+  - Strict dependency resolution
+- **Testing:** Vitest + Playwright
+  - Unit tests: Vitest
+  - E2E tests: Playwright
+
+### Deployment
+- **Target:** Static Site / PWA
+- **Hosting:** Vercel, Netlify, or Cloudflare Pages
+- **PWA Features:**
+  - Offline support
+  - Install to home screen
+  - Fast, app-like experience
+
+## Technical Architecture
+
+### Data Model
+
+```typescript
+interface Habit {
+  id: string;              // UUID v4
+  name: string;            // Display name
+  frequency?: {
+    times: number;         // Target completions
+    period: 'day' | 'week' | 'month';
+  };
+  createdAt: number;       // Unix timestamp
+}
+
+interface Completion {
+  id: string;              // UUID v4
+  habitId: string;         // Foreign key to Habit
+  completedAt: number;     // Unix timestamp
+}
+```
+
+### Project Structure
 
 ```
 bits/
 ├── src/
-│   ├── components/       # UI components
-│   │   ├── HabitList
-│   │   ├── HabitCard
-│   │   ├── AddHabit
-│   │   └── CompletionButton
-│   ├── models/          # Data models and types
-│   ├── hooks/           # Custom React hooks (if using React)
-│   ├── services/        # Business logic and data management
-│   ├── utils/           # Helper functions
-│   └── styles/          # Global styles
-├── public/              # Static assets
-└── tests/               # Test files
+│   ├── lib/
+│   │   ├── components/       # Svelte components
+│   │   │   ├── HabitList.svelte
+│   │   │   ├── HabitCard.svelte
+│   │   │   ├── CompletionButton.svelte
+│   │   │   └── AddHabitModal.svelte
+│   │   ├── stores/          # Svelte stores
+│   │   │   ├── habits.ts
+│   │   │   └── completions.ts
+│   │   ├── services/        # Business logic
+│   │   │   └── db.ts        # IndexedDB wrapper
+│   │   └── utils/           # Helper functions
+│   │       ├── date.ts
+│   │       └── calculations.ts
+│   ├── routes/              # SvelteKit routes
+│   │   └── +page.svelte     # Main app view
+│   └── app.html             # HTML template
+├── static/                  # Static assets
+├── tests/                   # Test files
+│   ├── unit/
+│   └── e2e/
+├── svelte.config.js
+├── tailwind.config.js
+├── tsconfig.json
+└── vite.config.ts
 ```
-
-## UI Design
-
-**One main view.** Everything you need, nothing you don't.
-
-### Main Screen
-- List of habits, each showing:
-  - Name
-  - Visual progress indicator
-  - Large, satisfying completion button
-- Simple "+" button to add new habit
-
-### Add Habit Form
-- Habit name (required)
-- Frequency (optional): times per period
-- That's it. No descriptions, no categories, no tags.
-
-## Implementation Plan
-
-### Phase 1: Beautiful MVP
-- [ ] Set up minimal project structure
-- [ ] Implement data models (Habit, Completion)
-- [ ] Create main habit list view
-- [ ] Build simple add habit form
-- [ ] Implement satisfying "mark as done" interaction
-- [ ] Add visual progress indicators
-- [ ] Local storage persistence
-- [ ] Make it beautiful
-
-### Phase 2: Polish (only if needed)
-- [ ] Subtle animations
-- [ ] Edit/delete habits
-- [ ] Dark mode (maybe)
-- [ ] Performance optimization
-
-That's it. Ship phase 1, use it, see if phase 2 is even necessary.
 
 ## Design Principles
 
-1. **Ruthlessly minimal** - Every feature must justify its existence
-2. **Instantly fast** - Zero loading, zero lag, zero friction
-3. **Beautiful by default** - Good design is not optional
-4. **No guilt** - Progress, not perfection
-5. **One thing well** - Habit tracking. That's it.
+1. **Ruthlessly Minimal** - Every feature must justify its existence
+2. **Instantly Fast** - Zero loading, zero lag, zero friction
+3. **Beautiful by Default** - Good design is not optional
+4. **No Guilt** - Focus on progress, not perfection
+5. **One Thing Well** - Habit tracking. That's it.
+
+## UI/UX Specifications
+
+### Main View
+- **Layout:** Single-page application
+- **Habit Display:**
+  - Habit name (prominent)
+  - Progress indicator (visual, non-numerical)
+  - Completion button (large, satisfying interaction)
+- **Add Habit:** Floating action button or header action
+- **No Navigation:** Everything on one screen
+
+### Add Habit Modal
+- Minimal form with two fields:
+  - Habit name (text input, required)
+  - Frequency (optional select)
+- Clean, focused design
+- Keyboard shortcuts for power users
+
+### Visual Design
+- **Color Palette:** Minimal, monochromatic base with subtle accent
+- **Typography:** Clean, readable sans-serif
+- **Spacing:** Generous whitespace
+- **Animations:** Subtle, purposeful (completion feedback)
+- **Responsive:** Mobile-first, works beautifully on all screens
+
+## Implementation Roadmap
+
+### Phase 1: Beautiful MVP (2-3 weeks)
+- [x] Technology stack decision
+- [ ] Project setup and configuration
+- [ ] Data models and IndexedDB service
+- [ ] Svelte stores for state management
+- [ ] Main habit list view
+- [ ] Add habit form/modal
+- [ ] Completion button with satisfying interaction
+- [ ] Visual progress indicators
+- [ ] Responsive design implementation
+- [ ] PWA manifest and service worker
+- [ ] Initial deployment
+
+### Phase 2: Polish (1 week, if needed)
+- [ ] Subtle animations and transitions
+- [ ] Edit/delete habit functionality
+- [ ] Dark mode support
+- [ ] Performance optimization
+- [ ] Accessibility audit (WCAG 2.1 AA)
+- [ ] Cross-browser testing
+
+**Strategy:** Ship Phase 1, use it in production, validate assumptions before Phase 2.
 
 ## What This App Will NOT Have
 
-- Complex analytics or statistics
-- Social features
-- Gamification or points systems
-- Habit categories or tags
-- Cloud sync (at least not initially)
-- Export/import features
-- Notifications (your choice to open the app)
-- Settings pages with dozens of options
+To maintain focus and simplicity, Bits explicitly excludes:
 
-If you want those features, use a different app. Bits does one thing: helps you track habits beautifully and simply.
+- ❌ Complex analytics or statistics dashboards
+- ❌ Social features or sharing capabilities
+- ❌ Gamification, points, or achievement systems
+- ❌ Habit categories, tags, or organizational features
+- ❌ Cloud sync (initially - local-first approach)
+- ❌ Data export/import functionality
+- ❌ Push notifications or reminders
+- ❌ Settings pages with dozens of configuration options
+- ❌ User accounts or authentication
+- ❌ Integrations with third-party services
+
+**If you need these features, this is not the right app.** Bits is intentionally minimal.
+
+## Development Setup
+
+```bash
+# Prerequisites
+Node.js >= 18.x
+pnpm >= 8.x
+
+# Clone repository
+git clone https://github.com/nathanrdodson/bits.git
+cd bits
+
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
+
+# Run tests
+pnpm test
+
+# Build for production
+pnpm build
+
+# Preview production build
+pnpm preview
+```
+
+## Performance Targets
+
+- **Initial Load:** < 50kb JavaScript (gzipped)
+- **First Contentful Paint:** < 1.5s (3G)
+- **Time to Interactive:** < 2.5s (3G)
+- **Lighthouse Score:** > 95 (Performance, Accessibility, Best Practices)
+- **Bundle Size:** < 100kb total (all assets)
+
+## Browser Support
+
+- Chrome/Edge 90+
+- Firefox 88+
+- Safari 14+
+- Mobile browsers (iOS Safari 14+, Chrome Android 90+)
+
+**Progressive Enhancement:** Core functionality works without JavaScript (where possible).
+
+## Contributing
+
+This is a focused, opinionated project. Feature requests that add complexity will likely be declined. Bug fixes and performance improvements are always welcome.
+
+## License
+
+MIT License - See LICENSE file for details
+
+## Acknowledgments
+
+Built with a focus on doing one thing well. Inspired by the Unix philosophy and modern minimalist design principles.
+
+---
+
+**Version:** 0.1.0-alpha
+**Status:** In Development
+**Last Updated:** 2025-10-27
