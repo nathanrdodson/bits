@@ -94,30 +94,37 @@ interface Completion {
 bits/
 ├── src/
 │   ├── lib/
-│   │   ├── components/       # Svelte components
+│   │   ├── components/           # Svelte components
 │   │   │   ├── HabitList.svelte
 │   │   │   ├── HabitCard.svelte
 │   │   │   ├── CompletionButton.svelte
 │   │   │   └── AddHabitModal.svelte
-│   │   ├── stores/          # Svelte stores
+│   │   ├── stores/              # Svelte stores for state
 │   │   │   ├── habits.ts
 │   │   │   └── completions.ts
-│   │   ├── services/        # Business logic
-│   │   │   └── db.ts        # IndexedDB wrapper
-│   │   └── utils/           # Helper functions
-│   │       ├── date.ts
-│   │       └── calculations.ts
-│   ├── routes/              # SvelteKit routes
-│   │   └── +page.svelte     # Main app view
-│   └── app.html             # HTML template
-├── static/                  # Static assets
-├── tests/                   # Test files
-│   ├── unit/
-│   └── e2e/
+│   │   ├── services/            # Business logic layer
+│   │   │   └── db.ts            # IndexedDB wrapper
+│   │   ├── utils/               # Helper functions
+│   │   │   ├── uuid.ts          # UUID generation
+│   │   │   └── date.ts          # Date utilities
+│   │   └── types.ts             # TypeScript types
+│   ├── routes/                  # SvelteKit routes
+│   │   ├── +layout.svelte       # Root layout
+│   │   └── +page.svelte         # Main app view
+│   ├── app.html                 # HTML template
+│   └── app.css                  # Global styles with Tailwind
+├── static/                      # Static assets
+│   └── manifest.json            # PWA manifest
+├── tests/                       # Test files
+│   ├── unit/                    # Unit tests
+│   └── e2e/                     # E2E tests (Playwright)
 ├── svelte.config.js
 ├── tailwind.config.js
+├── postcss.config.js
 ├── tsconfig.json
-└── vite.config.ts
+├── vite.config.ts
+├── playwright.config.ts
+└── package.json
 ```
 
 ## Design Principles
@@ -197,11 +204,15 @@ To maintain focus and simplicity, Bits explicitly excludes:
 
 ## Development Setup
 
-```bash
-# Prerequisites
-Node.js >= 18.x
-pnpm >= 8.x
+### Prerequisites
 
+Ensure you have the following installed:
+- **Node.js** >= 18.x (recommend using [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm))
+- **pnpm** >= 8.x (install with `npm install -g pnpm`)
+
+### Quick Start
+
+```bash
 # Clone repository
 git clone https://github.com/nathanrdodson/bits.git
 cd bits
@@ -209,17 +220,129 @@ cd bits
 # Install dependencies
 pnpm install
 
-# Start development server
+# Start development server (opens at http://localhost:5173)
 pnpm dev
 
-# Run tests
-pnpm test
+# Open in browser and start developing!
+```
 
-# Build for production
+### Available Scripts
+
+```bash
+# Development
+pnpm dev              # Start dev server with hot module replacement
+pnpm check            # Run type checking
+pnpm check:watch      # Run type checking in watch mode
+
+# Testing
+pnpm test             # Run unit tests
+pnpm test:watch       # Run unit tests in watch mode
+pnpm test:e2e         # Run end-to-end tests
+
+# Code Quality
+pnpm format           # Format code with Prettier
+pnpm lint             # Check code formatting
+
+# Production
+pnpm build            # Build for production (outputs to /build)
+pnpm preview          # Preview production build locally
+```
+
+### Development Workflow
+
+1. **Make Changes**: Edit files in `src/` - Vite will hot-reload automatically
+2. **Type Check**: Run `pnpm check` to catch TypeScript errors
+3. **Test**: Write tests in `tests/` and run with `pnpm test`
+4. **Format**: Run `pnpm format` before committing
+5. **Build**: Run `pnpm build` to test production build
+
+### Key Technologies
+
+- **SvelteKit 2.x**: Framework with static adapter for SPA mode
+- **TypeScript 5.x**: Type safety throughout the codebase
+- **Tailwind CSS 3.x**: Utility-first styling
+- **IndexedDB** (via idb): Local-first data storage
+- **Vite 5.x**: Lightning-fast build tool and dev server
+- **Vitest**: Unit testing framework
+- **Playwright**: End-to-end testing
+
+### Data Storage
+
+All data is stored locally in the browser's IndexedDB:
+- **Database**: `bits-db`
+- **Tables**: `habits`, `completions`
+- **Location**: Browser storage (persistent across sessions)
+
+To inspect data, use browser DevTools → Application → IndexedDB → bits-db
+
+### Common Development Tasks
+
+#### Adding a New Component
+
+```bash
+# Create component file
+touch src/lib/components/YourComponent.svelte
+
+# Import and use in another component
+import YourComponent from '$lib/components/YourComponent.svelte';
+```
+
+#### Adding a New Store
+
+```typescript
+// src/lib/stores/yourStore.ts
+import { writable } from 'svelte/store';
+
+export const yourStore = writable<YourType>(initialValue);
+```
+
+#### Modifying Data Models
+
+1. Update types in `src/lib/types.ts`
+2. Update database schema in `src/lib/services/db.ts`
+3. Increment `DB_VERSION` to trigger migration
+4. Test with fresh database or implement migration logic
+
+### Debugging Tips
+
+- **Console Logs**: Check browser console for errors and warnings
+- **Svelte DevTools**: Install browser extension for component inspection
+- **IndexedDB**: Inspect data in Application tab of DevTools
+- **Hot Reload**: Vite provides instant feedback - watch the browser update as you code
+
+### Troubleshooting
+
+**Port already in use:**
+```bash
+# Kill process on port 5173
+lsof -ti:5173 | xargs kill -9
+```
+
+**TypeScript errors after pulling changes:**
+```bash
+# Sync SvelteKit-generated types
+pnpm exec svelte-kit sync
+pnpm check
+```
+
+**Build errors:**
+```bash
+# Clear cache and rebuild
+rm -rf .svelte-kit build
 pnpm build
+```
 
-# Preview production build
-pnpm preview
+**Dependency issues:**
+```bash
+# Clean install
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
+```
+
+**IndexedDB issues:**
+```bash
+# Clear browser data for localhost:5173
+# DevTools → Application → Clear storage
 ```
 
 ## Performance Targets
